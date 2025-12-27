@@ -1,3 +1,5 @@
 	
-name	"John Doe"
-city_name	"New York"
+{
+	"name": "Mario Corroncho",
+	"city_name": "Bogota"
+}
