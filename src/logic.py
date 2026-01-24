@@ -3,6 +3,7 @@ from ollama import chat, ChatResponse
 from plugins.getDateAndTime import get_current_date, get_current_time
 from plugins.getHackerNews import get_hackernews_info
 from plugins.getWeather import get_weather
+from plugins.notesManager import save_note, get_note, list_notes, update_note, delete_note, search_notes
 
 def logic(messages):
     """
@@ -14,6 +15,12 @@ def logic(messages):
         'get_current_time': get_current_time,
         'get_hackernews_info': get_hackernews_info,
         'get_weather': get_weather,
+        'save_note': save_note,
+        'get_note': get_note,
+        'list_notes': list_notes,
+        'update_note': update_note,
+        'delete_note': delete_note,
+        'search_notes': search_notes        
     }
 
     # Define tool schema more explicitly
@@ -73,6 +80,109 @@ def logic(messages):
                 "required": ["city"]
             }
         }
+    }, {
+        "type": "function",
+                "function": {
+                    "name": "save_note",
+                    "description": "Save a note with a title and content",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "The title of the note"
+                                    },
+                                "content": {
+                                        "type": "string",
+                                        "description": "The content of the note"
+                                }
+                            },
+                        "required": ["title", "content"]
+                    }
+                }
+    },
+        {
+        "type": "function",
+                "function": {
+                    "name": "get_note",
+                    "description": "Retrieve a note by its title",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "The title of the note to retrieve"
+                                    }
+                            },
+                        "required": ["title"]
+                    }
+                }
+    },
+        {
+        "type": "function",
+                "function": {
+                    "name": "search_notes",
+                    "description": "Search for notes containing a specific term",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {
+                                    "query": {
+                                        "type": "string",
+                                        "description": "The search term to find in notes"
+                                    }
+                            },
+                        "required": ["query"]
+                    }
+                }
+    },
+        {
+        "type": "function",
+                "function": {
+                    "name": "list_notes",
+                    "description": "List all available notes",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {},
+                        "required": []
+                    }
+                }
+
+    }, {
+        "type": "function",
+                "function": {
+                    "name": "update_note",
+                    "description": "Update an existing note with new content",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "The title of the note to update"
+                                    },
+                                "content": {
+                                        "type": "string",
+                                        "description": "The new content for the note"
+                                }
+                            },
+                        "required": ["title", "content"]
+                    }
+                }
+    }, {
+        "type": "function",
+                "function": {
+                    "name": "delete_note",
+                    "description": "Delete a note by its title",
+                    "parameters": {
+                            "type": "object",
+                            "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "The title of the note to delete"
+                                    }
+                            },
+                        "required": ["title"]
+                    }
+                }
     }]
     
 

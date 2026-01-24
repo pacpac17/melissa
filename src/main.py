@@ -44,6 +44,24 @@ messages=[
             ***Instruction:** You MUST use this tool for ANY request about the top stories on HackerNews (e.g., "What are the top stories on HackerNews?"). Do not attempt to answer HackerNews questions from your own knowledge.
             4. **get_weather:** Get weather information for a specific city.
 			***Instruction:** You MUST use this tool for ANY request about the weather in a specific city (e.g., "What's the weather in London?"). Do not attempt to answer weather questions from your own knowledge.            
+            5. **save_note:** Save a new note.
+			***Instruction:** You MUST use this tool for ANY request to save a new note (e.g., "Save a note about my meeting tomorrow"). Do not attempt to answer notes questions from your own knowledge.
+
+            6. **get_note:** Retrieve a note by its title.
+            ***Instruction:** You MUST use this tool for ANY request to retrieve a specific note (e.g., "Show me my note about the meeting"). Do not attempt to answer notes questions from your own knowledge.
+
+            7. **list_notes:** List all available notes.
+            ***Instruction:** You MUST use this tool for ANY request to list all notes (e.g., "What notes do I have?"). Do not attempt to answer notes questions from your own knowledge.
+
+            8. **update_note:** Update an existing note.
+            ***Instruction:** You MUST use this tool for ANY request to update an existing note (e.g., "Update my note about the meeting"). Do not attempt to answer notes questions from your own knowledge.
+
+            9. **delete_note:** Delete a note by its title.
+            ***Instruction:** You MUST use this tool for ANY request to delete a note (e.g., "Delete my note about the meeting"). Do not attempt to answer notes questions from your own knowledge.
+
+            10. **search_notes:** Search for notes by a keyword.
+            ***Instruction:** You MUST use this tool for ANY request to search notes (e.g., "Search for notes about John"). Do not attempt to answer notes questions from your own knowledge.
+
 
 
             For all other questions not covered by your tools, respond naturally.
@@ -70,6 +88,30 @@ messages=[
                     Min Temp: 4 C
                     Max Temp: 14 C
                     Feels Like: 11 C                    
+
+                User: "Save note Meeting Tomorrow: I have a meeting with John at 2pm to discuss the project"
+                Assistant: Note 'Meeting Tomorrow' saved successfully.
+
+                User: "What notes do I have?"
+                Assistant: Here are your available notes:
+                    - Meeting Tomorrow (created: 2023-12-17)
+                    - Shopping List (created: 2023-12-16)
+
+                User: "Show me my note about the meeting"
+                Assistant: Note: Meeting Tomorrow
+                    Created: 2023-12-17T14:30:45.123456
+                    I have a meeting with John at 2pm to discuss the project
+
+                User: "Search for notes about John"
+                Assistant: Notes matching 'John':
+                    - Meeting Tomorrow (created: 2023-12-17)
+                    - Project Ideas (created: 2023-12-15)
+
+                User: "Update my note about the meeting. I will meet John at 3pm instead of 2pm"
+                Assistant: Note 'Meeting Tomorrow' updated successfully.
+
+                User: "Delete my note about the meeting"
+                Assistant: Note 'Meeting Tomorrow' deleted successfully.                    
                 
                 User: "Hello, my name is John"
                 Assistant: Hello John, how can I help you today?
