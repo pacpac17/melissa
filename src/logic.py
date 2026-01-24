@@ -1,31 +1,149 @@
 import re 
 from ollama import chat, ChatResponse
+from plugins.getDateAndTime import get_current_date, get_current_time
+from plugins.getHackerNews import get_hackernews_info
+from plugins.getWeather import get_weather
 
-def logic(message):
-    response = chat(model='qwen3:1.7b', messages=[
-        {
-            'role': 'system',
-            'content': 'You are a helpful virtual assistant named Melissa. Give concise replies.',
-        },
-        {
-            'role': 'user',
-            'content': message or 'hi',
-        },
-    ])
-    # Clean the response content
-    # if 'content' in response.message and response.message['content']:
-    #     response.message['content'] = re.sub(r'<think>.*?</think>', '', response.message['content'], flags=re.DOTALL).strip()
+def logic(messages):
+    """
+    Process messages and handle tool calls
+    Returns appropriate response from the LLM.
+    """
+    available_functions = {
+        'get_current_date': get_current_date,
+        'get_current_time': get_current_time,
+        'get_hackernews_info': get_hackernews_info,
+        'get_weather': get_weather,
+    }
 
-    if response.message.thinking:
-        print('Thinking: ')
-        print(response.message.thinking + '\n\n')
-        return response.message.thinking
-    if response.message.content:
-        print('Content: ')
-        print(response.message.content + '\n')
-        return response.message.content
+    # Define tool schema more explicitly
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "get_current_date",
+            "description": "Get today's date",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    }, {
+        "type": "function",
+        "function": {
+            "name": "get_current_time",
+            "description": "Get the current time of the day",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_hackernews_info",
+            "description": "Fetch top stories from Hacker News",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The user's query about Hacker News stories"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+     {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Always get weather information for a specific city",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "description": "The name of the city to get weather information for"
+                    }
+                },
+                "required": ["city"]
+            }
+        }
+    }]
     
-    return "Nanaicucas...."
+
+    # Get initial response
+    response = chat(model='qwen3:1.7b', messages=messages,tools=tools)
+    
+    # Clean the response content
+    if 'content' in response.message and response.message['content']:
+        response.message['content'] = re.sub(r'<think>.*?</think>', '', response.message['content'], flags=re.DOTALL).strip()   
+
+    # If no tool calls, return the response directly
+    if not response.message.tool_calls:
+        print('No tool calls detected')
+        return response.message
+
+    # Handle tool calls if present
+    tool_outputs = []
+    for tool in response.message.tool_calls:
+        if function_to_call := available_functions.get(tool.function.name):
+            output = function_to_call(**tool.function.arguments)
+            if output:
+                tool_outputs.append({
+                    'role': 'tool',
+                    'content': output,
+                    'name': tool.function.name
+                })
+    if tool_outputs:
+        # Add the assistant's tool call message               
+        messages.append({
+            'role': 'assistant',
+            'content': response.message.content or '',
+            'tool_calls': response.message.tool_calls
+        })
+        # Add the tool outputs
+        messages.extend(tool_outputs)
+        final_response = chat('qwen3:1.7b', messages=messages,tools=tools)
+
+        # Clean the final response content
+        if 'content' in final_response.message and final_response.message['content']:
+            final_response.message['content'] = re.sub(r'<think>.*?</think>', '', final_response.message['content'], flags=re.DOTALL).strip()
+        return final_response.message
+    return response.message
+
+
+
+
+# def logic(message):
+#     response = chat(model='qwen3:1.7b', messages=[
+#         {
+#             'role': 'system',
+#             'content': 'You are a helpful virtual assistant named Melissa. Give concise replies.',
+#         },
+#         {
+#             'role': 'user',
+#             'content': message or 'hi',
+#         },
+#     ])
+#     # Clean the response content
+#     # if 'content' in response.message and response.message['content']:
+#     #     response.message['content'] = re.sub(r'<think>.*?</think>', '', response.message['content'], flags=re.DOTALL).strip()
+
+#     if response.message.thinking:
+#         print('Thinking: ')
+#         print(response.message.thinking + '\n\n')
+#         return response.message.thinking
+#     if response.message.content:
+#         print('Content: ')
+#         print(response.message.content + '\n')
+#         return response.message.content
+    
+#     return "Nanaicucas...."
 
 
 
